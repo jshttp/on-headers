@@ -49,11 +49,14 @@ function createWriteHead(prevWriteHead, listener) {
 }
 
 function setWriteHeadHeaders(statusCode) {
-  var headerIndex = typeof arguments[1] === 'string'
+  var length = arguments.length
+  var headerIndex = length > 1 && typeof arguments[1] === 'string'
     ? 2
     : 1
 
-  var headers = arguments[headerIndex]
+  var headers = length >= headerIndex - 1
+    ? arguments[headerIndex]
+    : undefined
 
   this.statusCode = statusCode
 
@@ -72,5 +75,11 @@ function setWriteHeadHeaders(statusCode) {
     }
   }
 
-  return slice.call(arguments, 0, headerIndex)
+  // copy leading arguments
+  var args = new Array(Math.min(length, headerIndex))
+  for (var i = 0; i < args.length; i++) {
+    args[i] = arguments[i]
+  }
+
+  return args
 }
