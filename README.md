@@ -2,6 +2,7 @@
 
 [![NPM Version](https://img.shields.io/npm/v/on-headers.svg?style=flat)](https://www.npmjs.org/package/on-headers)
 [![Build Status](https://img.shields.io/travis/expressjs/on-headers.svg?style=flat)](https://travis-ci.org/expressjs/on-headers)
+[![Gittip](https://img.shields.io/gittip/dougwilson.svg?style=flat)](https://www.gittip.com/dougwilson/)
 
 Execute a listener when a response is about to write headers.
 
