@@ -20,8 +20,8 @@ var onHeaders = require('on-headers')
 ### onHeaders(res, listener)
 
 This will add the listener `listener` to fire when headers are emitted for `res`.
-Headers are considered to be emitted only once, right before they are sent to
-the client.
+The listener is passed the `response` object as it's context (`this`). Headers are
+considered to be emitted only once, right before they are sent to the client.
 
 ## Examples
 
