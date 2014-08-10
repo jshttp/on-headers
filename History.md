@@ -1,5 +1,5 @@
-unreleased
-==========
+1.0.0 / 2014-08-10
+==================
 
   * Honor `res.statusCode` change in `listener`
   * Move to `jshttp` orgainzation
