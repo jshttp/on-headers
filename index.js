@@ -19,8 +19,12 @@ var slice = Array.prototype.slice
  */
 
 module.exports = function onHeaders(res, listener) {
+  if (!res) {
+    throw new TypeError('argument res is required')
+  }
+
   if (typeof listener !== 'function') {
-    throw new TypeError('listener must be a function')
+    throw new TypeError('argument listener must be a function')
   }
 
   res.writeHead = createWriteHead(res.writeHead, listener)

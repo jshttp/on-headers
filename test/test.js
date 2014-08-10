@@ -82,9 +82,66 @@ describe('onHeaders(res, listener)', function () {
     .expect(200, done)
   })
 
+  describe('arguments', function () {
+    describe('res', function () {
+      it('should be required', function () {
+        assert.throws(onHeaders.bind(), /res.*required/)
+      })
+    })
+
+    describe('listener', function () {
+      it('should be required', function (done) {
+        var server = createServer()
+
+        request(server)
+        .get('/')
+        .expect(500, /listener.*function/, done)
+      })
+
+      it('should only accept function', function (done) {
+        var server = createServer(42)
+
+        request(server)
+        .get('/')
+        .expect(500, /listener.*function/, done)
+      })
+    })
+  })
+
   describe('setHeader', function () {
     it('should be available in listener', function (done) {
       var server = createServer(echoListener)
+
+      request(server)
+      .get('/')
+      .expect('X-Outgoing-Echo', 'test')
+      .expect(200, done)
+    })
+  })
+
+  describe('writeHead(status, reason)', function () {
+    it('should be available in listener', function (done) {
+      var server = createServer(echoListener, handler)
+
+      function handler(req, res) {
+        res.setHeader('X-Outgoing', 'test')
+        res.writeHead(200, 'OK')
+      }
+
+      request(server)
+      .get('/')
+      .expect('X-Outgoing-Echo', 'test')
+      .expect(200, done)
+    })
+  })
+
+  describe('writeHead(status, reason, obj)', function () {
+    it('should be available in listener', function (done) {
+      var server = createServer(echoListener, handler)
+
+      function handler(req, res) {
+        res.writeHead(200, 'OK', {'X-Outgoing': 'test'})
+      }
 
       request(server)
       .get('/')
@@ -99,6 +156,25 @@ describe('onHeaders(res, listener)', function () {
 
       function handler(req, res) {
         res.writeHead(201, {'X-Outgoing': 'test'})
+      }
+
+      function listener(req, res) {
+        this.setHeader('X-Status', this.statusCode)
+        this.setHeader('X-Outgoing-Echo', this.getHeader('X-Outgoing'))
+      }
+
+      request(server)
+      .get('/')
+      .expect('X-Status', '201')
+      .expect('X-Outgoing-Echo', 'test')
+      .expect(201, done)
+    })
+
+    it('should handle falsy keys', function (done) {
+      var server = createServer(listener, handler)
+
+      function handler(req, res) {
+        res.writeHead(201, {'X-Outgoing': 'test', '': 'test'})
       }
 
       function listener(req, res) {
@@ -140,9 +216,16 @@ function createServer(listener, handler) {
   handler = handler || echoHandler
 
   return http.createServer(function (req, res) {
-    onHeaders(res, listener)
-    handler(req, res)
-    res.end()
+    try {
+      onHeaders(res, listener)
+      handler(req, res)
+      res.statusCode = 200
+    } catch (err) {
+      res.statusCode = 500
+      res.write(err.message)
+    } finally {
+      res.end()
+    }
   })
 }
 
