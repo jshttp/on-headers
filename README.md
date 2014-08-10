@@ -1,6 +1,7 @@
 # on-headers
 
 [![NPM Version](https://img.shields.io/npm/v/on-headers.svg?style=flat)](https://www.npmjs.org/package/on-headers)
+[![Node.js Version](https://img.shields.io/badge/node.js->=_0.8-blue.svg?style=flat)](http://nodejs.org/download/)
 [![Build Status](https://img.shields.io/travis/expressjs/on-headers.svg?style=flat)](https://travis-ci.org/expressjs/on-headers)
 [![Gittip](https://img.shields.io/gittip/dougwilson.svg?style=flat)](https://www.gittip.com/dougwilson/)
 
