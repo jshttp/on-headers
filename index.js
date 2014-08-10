@@ -42,6 +42,12 @@ function createWriteHead(prevWriteHead, listener) {
     if (!fired) {
       fired = true
       listener.call(this)
+
+      // pass-along an updated status code
+      if (typeof args[0] === 'number' && this.statusCode !== args[0]) {
+        args[0] = this.statusCode
+        args.length = 1
+      }
     }
 
     prevWriteHead.apply(this, args);

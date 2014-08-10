@@ -119,6 +119,43 @@ describe('onHeaders(res, listener)', function () {
     })
   })
 
+  describe('writeHead(status)', function () {
+    it('should make status available in listener', function (done) {
+      var server = createServer(listener, handler)
+
+      function handler(req, res) {
+        res.writeHead(201)
+      }
+
+      function listener(req, res) {
+        this.setHeader('X-Status', this.statusCode)
+      }
+
+      request(server)
+      .get('/')
+      .expect('X-Status', '201')
+      .expect(201, done)
+    })
+
+    it('should allow manipulation of status in listener', function (done) {
+      var server = createServer(listener, handler)
+
+      function handler(req, res) {
+        res.writeHead(201)
+      }
+
+      function listener(req, res) {
+        this.setHeader('X-Status', this.statusCode)
+        this.statusCode = 202
+      }
+
+      request(server)
+      .get('/')
+      .expect('X-Status', '201')
+      .expect(202, done)
+    })
+  })
+
   describe('writeHead(status, reason)', function () {
     it('should be available in listener', function (done) {
       var server = createServer(echoListener, handler)

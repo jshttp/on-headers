@@ -1,6 +1,7 @@
 unreleased
 ==========
 
+  * Honor `res.statusCode` change in `listener`
   * Move to `jshttp` orgainzation
   * Prevent `arguments`-related de-opt
 
