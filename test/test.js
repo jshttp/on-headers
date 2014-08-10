@@ -66,6 +66,22 @@ describe('onHeaders(res, listener)', function () {
     })
   })
 
+  it('should fire in reverse order', function (done) {
+    var server = createServer(echoListener, handler)
+
+    function handler(req, res) {
+      onHeaders(res, appendHeader(1))
+      onHeaders(res, appendHeader(2))
+      onHeaders(res, appendHeader(3))
+      res.setHeader('X-Outgoing', 'test')
+    }
+
+    request(server)
+    .get('/')
+    .expect('X-Outgoing-Echo', 'test,3,2,1')
+    .expect(200, done)
+  })
+
   describe('setHeader', function () {
     it('should be available in listener', function (done) {
       var server = createServer(echoListener)
@@ -128,6 +144,12 @@ function createServer(listener, handler) {
     handler(req, res)
     res.end()
   })
+}
+
+function appendHeader(num) {
+  return function onHeaders() {
+    this.setHeader('X-Outgoing', this.getHeader('X-Outgoing') + ',' + num)
+  }
 }
 
 function echoHandler(req, res) {

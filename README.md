@@ -25,6 +25,9 @@ This will add the listener `listener` to fire when headers are emitted for `res`
 The listener is passed the `response` object as it's context (`this`). Headers are
 considered to be emitted only once, right before they are sent to the client.
 
+When this is called multiple times on the same `res`, the `listener`s are fired
+in the reverse order they were added.
+
 ## Examples
 
 ```js
