@@ -1,4 +1,7 @@
-# on-headers [![Build Status](https://travis-ci.org/expressjs/on-headers.svg)](https://travis-ci.org/expressjs/on-headers) [![NPM version](https://badge.fury.io/js/on-headers.svg)](http://badge.fury.io/js/on-headers)
+# on-headers
+
+[![NPM Version](https://img.shields.io/npm/v/on-headers.svg)](https://www.npmjs.org/package/on-headers)
+[![Build Status](https://img.shields.io/travis/expressjs/on-headers.svg)](https://travis-ci.org/expressjs/on-headers)
 
 Execute a listener when a response is about to write headers.
 
