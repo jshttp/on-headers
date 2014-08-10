@@ -154,6 +154,18 @@ describe('onHeaders(res, listener)', function () {
       .expect('X-Status', '201')
       .expect(202, done)
     })
+
+    it('should pass-through core error', function (done) {
+      var server = createServer(echoListener, handler)
+
+      function handler(req, res) {
+        res.writeHead() // error
+      }
+
+      request(server)
+      .get('/')
+      .expect(500, done)
+    })
   })
 
   describe('writeHead(status, reason)', function () {

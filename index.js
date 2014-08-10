@@ -60,7 +60,7 @@ function setWriteHeadHeaders(statusCode) {
     ? 2
     : 1
 
-  var headers = length >= headerIndex - 1
+  var headers = length >= headerIndex + 1
     ? arguments[headerIndex]
     : undefined
 
