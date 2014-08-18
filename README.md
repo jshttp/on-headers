@@ -8,7 +8,7 @@
 
 Execute a listener when a response is about to write headers.
 
-## Install
+## Installation
 
 ```sh
 $ npm install on-headers
@@ -52,6 +52,12 @@ function onRequest(req, res) {
   res.setHeader('Content-Type', 'text/plain')
   res.end('hello!')
 }
+```
+
+## Testing
+
+```sh
+$ npm test
 ```
 
 ## License
