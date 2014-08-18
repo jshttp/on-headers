@@ -4,7 +4,6 @@
 [![Node.js Version](https://img.shields.io/badge/node.js->=_0.8-brightgreen.svg?style=flat)](http://nodejs.org/download/)
 [![Build Status](https://img.shields.io/travis/jshttp/on-headers.svg?style=flat)](https://travis-ci.org/jshttp/on-headers)
 [![Coverage Status](https://img.shields.io/coveralls/jshttp/on-headers.svg?style=flat)](https://coveralls.io/r/jshttp/on-headers)
-[![Gittip](https://img.shields.io/gittip/dougwilson.svg?style=flat)](https://www.gittip.com/dougwilson/)
 
 Execute a listener when a response is about to write headers.
 
