@@ -40,9 +40,9 @@ http
 .listen(3000)
 
 function addPoweredBy() {
-  // add if not set by end of request
+  // set if not set by end of request
   if (!this.getHeader('X-Powered-By')) {
-    this.addHeader('X-Powered-By', 'Node.js')
+    this.setHeader('X-Powered-By', 'Node.js')
   }
 }
 
