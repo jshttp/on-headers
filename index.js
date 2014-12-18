@@ -37,20 +37,27 @@ function createWriteHead(prevWriteHead, listener) {
   return function writeHead(statusCode) {
     // set headers from arguments
     var args = setWriteHeadHeaders.apply(this, arguments);
-
+    var self = this;
     // fire listener
     if (!fired) {
-      fired = true
-      listener.call(this)
+      fired = true;
 
-      // pass-along an updated status code
-      if (typeof args[0] === 'number' && this.statusCode !== args[0]) {
-        args[0] = this.statusCode
-        args.length = 1
+      function next(err) {
+          if (!err) {
+              // pass-along an updated status code
+              if (typeof args[0] === 'number' && self.statusCode !== args[0]) {
+                  args[0] = self.statusCode
+                  args.length = 1
+              }
+              prevWriteHead.apply(self, args)
+          }
+          else throw(err);
       }
+      listener.call(this, next);
+      return;
     }
+    prevWriteHead.apply(this, args)
 
-    prevWriteHead.apply(this, args);
   }
 }
 
