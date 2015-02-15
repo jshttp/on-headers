@@ -17,6 +17,12 @@
     "mocha": "~1.21.4",
     "supertest": "~0.14.0"
   },
+  "files": [
+    "LICENSE",
+    "HISTORY.md",
+    "README.md",
+    "index.js"
+  ],
   "engines": {
     "node": ">= 0.8.0"
   },
