@@ -4,11 +4,6 @@
  * MIT Licensed
  */
 
-/**
- * Reference to Array slice.
- */
-
-var slice = Array.prototype.slice
 
 /**
  * Execute a listener when a response is about to write headers.
@@ -27,30 +22,35 @@ module.exports = function onHeaders(res, listener) {
     throw new TypeError('argument listener must be a function')
   }
 
-  res.writeHead = createWriteHead(res.writeHead, listener)
-}
-
-function createWriteHead(prevWriteHead, listener) {
-  var fired = false;
+  /* if onHeaders already injected, only add listener */
+  if(res._onHeadWriteHead){
+    res._onHeadListeners = res._onHeadListeners || [];
+    res._onHeadListeners.push(listener);
+    return;
+  }
+  res._onHeadWriteHead = res.writeHead;
+  res._onHeadFiredHead = false;
+  res._onHeadListeners = [listener];
 
   // return function with core name and argument list
-  return function writeHead(statusCode) {
+  res.writeHead = function(statusCode) {
     // set headers from arguments
     var args = setWriteHeadHeaders.apply(this, arguments);
 
-    // fire listener
-    if (!fired) {
-      fired = true
-      listener.call(this)
-
+    // fire listeners
+    if (!this._onHeadFiredHead) {
+      this._onHeadFiredHead = true;
+      while(listener = this._onHeadListeners.pop()){
+        listener.call(this);
+        listener = null;
+      }
       // pass-along an updated status code
       if (typeof args[0] === 'number' && this.statusCode !== args[0]) {
         args[0] = this.statusCode
         args.length = 1
       }
     }
-
-    prevWriteHead.apply(this, args);
+    this._onHeadWriteHead.apply(this, args);
   }
 }
 
