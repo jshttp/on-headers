@@ -20,7 +20,7 @@ var slice = Array.prototype.slice
  * @api public
  */
 
-module.exports = function onHeaders(res, listener) {
+module.exports = function onHeaders(res, listener, async) {
   if (!res) {
     throw new TypeError('argument res is required')
   }
@@ -29,30 +29,88 @@ module.exports = function onHeaders(res, listener) {
     throw new TypeError('argument listener must be a function')
   }
 
-  res.writeHead = createWriteHead(res.writeHead, listener)
+  if (typeof async === 'undefined') {
+    async = false
+  }
+
+  if (!res._beforeReplyListeners) {
+    res._beforeReplyListeners = []
+    res.writeHead = createWriteHead(res.writeHead)
+    res.write = createWrite(res.write)
+    res.send = createSend(res.send)
+    res.end = createEnd(res.end)
+  }
+
+  if (!async) {
+    res._beforeReplyListeners.push(function _syncListener(next) {
+      listener.call(this)
+      next.call(this)
+    })
+  } else {
+    res._beforeReplyListeners.push(listener)
+  }
 }
 
-function createWriteHead(prevWriteHead, listener) {
-  var fired = false;
+function callbacks(res, next) {
+  var listeners = res._beforeReplyListeners
+  res._beforeReplyListeners = []
 
-  // return function with core name and argument list
-  return function writeHead(statusCode) {
-    // set headers from arguments
-    var args = setWriteHeadHeaders.apply(this, arguments);
+  var flattenedListeners = listeners.reduce(function _reduceIterator(next, listener) {
+    return function() {
+      listener.call(res, next)
+    }
+  }, next)
 
-    // fire listener
-    if (!fired) {
-      fired = true
-      listener.call(this)
+  flattenedListeners()
+}
 
+function createEnd(previousEnd) {
+  return function _end() {
+    var res = this
+    var args = arguments
+
+    callbacks(res, function() {
+      previousEnd.apply(res, args)
+    })
+  }
+}
+
+function createSend(previousSend) {
+  return function _send() {
+    var res = this
+    var args = arguments
+
+    callbacks(res, function() {
+      previousSend.apply(res, args)
+    })
+  }
+}
+
+function createWrite(previousWrite) {
+  return function _write() {
+    var res = this
+    var args = arguments
+
+    callbacks(res, function() {
+      previousWrite.apply(res, args)
+    })
+  }
+}
+
+function createWriteHead(previousWriteHead) {
+  return function _writeHead() {
+    var res = this
+    var args = setWriteHeadHeaders.apply(this, arguments)
+
+    callbacks(res, function() {
       // pass-along an updated status code
-      if (typeof args[0] === 'number' && this.statusCode !== args[0]) {
-        args[0] = this.statusCode
+      if (typeof args[0] === 'number' && res.statusCode !== args[0]) {
+        args[0] = res.statusCode
         args.length = 1
       }
-    }
 
-    prevWriteHead.apply(this, args);
+      previousWriteHead.apply(res, args)
+    })
   }
 }
 
