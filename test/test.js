@@ -28,6 +28,20 @@ describe('onHeaders(res, listener)', function () {
     .expect(200, '1', done)
   })
 
+  it('should fire before write', function (done) {
+    var server = createServer(echoListenerCallback, handler, true)
+
+    function handler(req, res) {
+      res.setHeader('X-Outgoing', 'test')
+      res.write('1')
+    }
+
+    request(server)
+    .get('/')
+    .expect('X-Outgoing-Echo-Callback', 'test')
+    .expect(200, '1', done)
+  })
+
   it('should fire with no headers', function (done) {
     var server = createServer(listener, handler)
 
@@ -261,12 +275,16 @@ describe('onHeaders(res, listener)', function () {
   })
 })
 
-function createServer(listener, handler) {
+function createServer(listener, handler, async) {
   handler = handler || echoHandler
+
+  if (typeof async === 'undefined') {
+    async = false
+  }
 
   return http.createServer(function (req, res) {
     try {
-      onHeaders(res, listener)
+      onHeaders(res, listener, async)
       handler(req, res)
       res.statusCode = 200
     } catch (err) {
@@ -290,4 +308,9 @@ function echoHandler(req, res) {
 
 function echoListener() {
   this.setHeader('X-Outgoing-Echo', this.getHeader('X-Outgoing'))
+}
+
+function echoListenerCallback(next) {
+  this.setHeader('X-Outgoing-Echo-Callback', this.getHeader('X-Outgoing'))
+  next();
 }
