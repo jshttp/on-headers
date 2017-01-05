@@ -67,7 +67,7 @@ $ npm test
 [npm-image]: https://img.shields.io/npm/v/on-headers.svg
 [npm-url]: https://npmjs.org/package/on-headers
 [node-version-image]: https://img.shields.io/node/v/on-headers.svg
-[node-version-url]: http://nodejs.org/download/
+[node-version-url]: https://nodejs.org/en/download/
 [travis-image]: https://img.shields.io/travis/jshttp/on-headers/master.svg
 [travis-url]: https://travis-ci.org/jshttp/on-headers
 [coveralls-image]: https://img.shields.io/coveralls/jshttp/on-headers/master.svg
