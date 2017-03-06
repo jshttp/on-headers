@@ -7,24 +7,19 @@
 'use strict'
 
 /**
- * Execute a listener when a response is about to write headers.
- *
- * @param {Object} res
- * @return {Function} listener
- * @api public
+ * Module exports.
+ * @public
  */
 
-module.exports = function onHeaders (res, listener) {
-  if (!res) {
-    throw new TypeError('argument res is required')
-  }
+module.exports = onHeaders
 
-  if (typeof listener !== 'function') {
-    throw new TypeError('argument listener must be a function')
-  }
-
-  res.writeHead = createWriteHead(res.writeHead, listener)
-}
+/**
+ * Create a replacement writeHead method.
+ *
+ * @param {function} prevWriteHead
+ * @param {function} listener
+ * @private
+ */
 
 function createWriteHead (prevWriteHead, listener) {
   var fired = false
@@ -50,11 +45,47 @@ function createWriteHead (prevWriteHead, listener) {
   }
 }
 
+/**
+ * Execute a listener when a response is about to write headers.
+ *
+ * @param {object} res
+ * @return {function} listener
+ * @public
+ */
+
+function onHeaders (res, listener) {
+  if (!res) {
+    throw new TypeError('argument res is required')
+  }
+
+  if (typeof listener !== 'function') {
+    throw new TypeError('argument listener must be a function')
+  }
+
+  res.writeHead = createWriteHead(res.writeHead, listener)
+}
+
+/**
+ * Set headers contained in array on the response object.
+ *
+ * @param {object} res
+ * @param {array} headers
+ * @private
+ */
+
 function setHeadersFromArray (res, headers) {
   for (var i = 0; i < headers.length; i++) {
     res.setHeader(headers[i][0], headers[i][1])
   }
 }
+
+/**
+ * Set headers contained in object on the response object.
+ *
+ * @param {object} res
+ * @param {object} headers
+ * @private
+ */
 
 function setHeadersFromObject (res, headers) {
   var keys = Object.keys(headers)
@@ -63,6 +94,13 @@ function setHeadersFromObject (res, headers) {
     if (k) res.setHeader(k, headers[k])
   }
 }
+
+/**
+ * Set headers and other properties on the response object.
+ *
+ * @param {number} statusCode
+ * @private
+ */
 
 function setWriteHeadHeaders (statusCode) {
   var length = arguments.length
