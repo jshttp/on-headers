@@ -17,7 +17,7 @@ describe('onHeaders(res, listener)', function () {
   it('should fire before write', function (done) {
     var server = createServer(echoListener, handler)
 
-    function handler(req, res) {
+    function handler (req, res) {
       res.setHeader('X-Outgoing', 'test')
       res.write('1')
     }
@@ -31,9 +31,9 @@ describe('onHeaders(res, listener)', function () {
   it('should fire with no headers', function (done) {
     var server = createServer(listener, handler)
 
-    function handler(req, res) {}
+    function handler (req, res) {}
 
-    function listener(req, res) {
+    function listener (req, res) {
       this.setHeader('X-Headers', Object.keys(this._headers || {}).join(','))
     }
 
@@ -47,13 +47,13 @@ describe('onHeaders(res, listener)', function () {
     var count = 0
     var server = createServer(listener, handler)
 
-    function handler(req, res) {
+    function handler (req, res) {
       res.writeHead(200)
 
       try { res.writeHead(200) } catch (e) {}
     }
 
-    function listener(req, res) {
+    function listener (req, res) {
       count++
     }
 
@@ -69,7 +69,7 @@ describe('onHeaders(res, listener)', function () {
   it('should fire in reverse order', function (done) {
     var server = createServer(echoListener, handler)
 
-    function handler(req, res) {
+    function handler (req, res) {
       onHeaders(res, appendHeader(1))
       onHeaders(res, appendHeader(2))
       onHeaders(res, appendHeader(3))
@@ -123,11 +123,11 @@ describe('onHeaders(res, listener)', function () {
     it('should make status available in listener', function (done) {
       var server = createServer(listener, handler)
 
-      function handler(req, res) {
+      function handler (req, res) {
         res.writeHead(201)
       }
 
-      function listener(req, res) {
+      function listener (req, res) {
         this.setHeader('X-Status', this.statusCode)
       }
 
@@ -140,11 +140,11 @@ describe('onHeaders(res, listener)', function () {
     it('should allow manipulation of status in listener', function (done) {
       var server = createServer(listener, handler)
 
-      function handler(req, res) {
+      function handler (req, res) {
         res.writeHead(201)
       }
 
-      function listener(req, res) {
+      function listener (req, res) {
         this.setHeader('X-Status', this.statusCode)
         this.statusCode = 202
       }
@@ -158,7 +158,7 @@ describe('onHeaders(res, listener)', function () {
     it('should pass-through core error', function (done) {
       var server = createServer(echoListener, handler)
 
-      function handler(req, res) {
+      function handler (req, res) {
         res.writeHead() // error
       }
 
@@ -172,7 +172,7 @@ describe('onHeaders(res, listener)', function () {
     it('should be available in listener', function (done) {
       var server = createServer(echoListener, handler)
 
-      function handler(req, res) {
+      function handler (req, res) {
         res.setHeader('X-Outgoing', 'test')
         res.writeHead(200, 'OK')
       }
@@ -188,7 +188,7 @@ describe('onHeaders(res, listener)', function () {
     it('should be available in listener', function (done) {
       var server = createServer(echoListener, handler)
 
-      function handler(req, res) {
+      function handler (req, res) {
         res.writeHead(200, 'OK', {'X-Outgoing': 'test'})
       }
 
@@ -203,11 +203,11 @@ describe('onHeaders(res, listener)', function () {
     it('should be available in listener', function (done) {
       var server = createServer(listener, handler)
 
-      function handler(req, res) {
+      function handler (req, res) {
         res.writeHead(201, {'X-Outgoing': 'test'})
       }
 
-      function listener(req, res) {
+      function listener (req, res) {
         this.setHeader('X-Status', this.statusCode)
         this.setHeader('X-Outgoing-Echo', this.getHeader('X-Outgoing'))
       }
@@ -222,11 +222,11 @@ describe('onHeaders(res, listener)', function () {
     it('should handle falsy keys', function (done) {
       var server = createServer(listener, handler)
 
-      function handler(req, res) {
+      function handler (req, res) {
         res.writeHead(201, {'X-Outgoing': 'test', '': 'test'})
       }
 
-      function listener(req, res) {
+      function listener (req, res) {
         this.setHeader('X-Status', this.statusCode)
         this.setHeader('X-Outgoing-Echo', this.getHeader('X-Outgoing'))
       }
@@ -243,11 +243,11 @@ describe('onHeaders(res, listener)', function () {
     it('should be available in listener', function (done) {
       var server = createServer(listener, handler)
 
-      function handler(req, res) {
+      function handler (req, res) {
         res.writeHead(201, [['X-Outgoing', 'test']])
       }
 
-      function listener(req, res) {
+      function listener (req, res) {
         this.setHeader('X-Status', this.statusCode)
         this.setHeader('X-Outgoing-Echo', this.getHeader('X-Outgoing'))
       }
@@ -261,7 +261,7 @@ describe('onHeaders(res, listener)', function () {
   })
 })
 
-function createServer(listener, handler) {
+function createServer (listener, handler) {
   handler = handler || echoHandler
 
   return http.createServer(function (req, res) {
@@ -278,16 +278,16 @@ function createServer(listener, handler) {
   })
 }
 
-function appendHeader(num) {
-  return function onHeaders() {
+function appendHeader (num) {
+  return function onHeaders () {
     this.setHeader('X-Outgoing', this.getHeader('X-Outgoing') + ',' + num)
   }
 }
 
-function echoHandler(req, res) {
+function echoHandler (req, res) {
   res.setHeader('X-Outgoing', 'test')
 }
 
-function echoListener() {
+function echoListener () {
   this.setHeader('X-Outgoing-Echo', this.getHeader('X-Outgoing'))
 }
