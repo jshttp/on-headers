@@ -42,8 +42,8 @@ var http = require('http')
 var onHeaders = require('on-headers')
 
 http
-.createServer(onRequest)
-.listen(3000)
+  .createServer(onRequest)
+  .listen(3000)
 
 function addPoweredBy () {
   // set if not set by end of request

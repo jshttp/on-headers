@@ -9,9 +9,9 @@ describe('onHeaders(res, listener)', function () {
     var server = createServer(echoListener)
 
     request(server)
-    .get('/')
-    .expect('X-Outgoing-Echo', 'test')
-    .expect(200, done)
+      .get('/')
+      .expect('X-Outgoing-Echo', 'test')
+      .expect(200, done)
   })
 
   it('should fire before write', function (done) {
@@ -23,9 +23,9 @@ describe('onHeaders(res, listener)', function () {
     }
 
     request(server)
-    .get('/')
-    .expect('X-Outgoing-Echo', 'test')
-    .expect(200, '1', done)
+      .get('/')
+      .expect('X-Outgoing-Echo', 'test')
+      .expect(200, '1', done)
   })
 
   it('should fire with no headers', function (done) {
@@ -38,9 +38,9 @@ describe('onHeaders(res, listener)', function () {
     }
 
     request(server)
-    .get('/')
-    .expect('X-Headers', '')
-    .expect(200, done)
+      .get('/')
+      .expect('X-Headers', '')
+      .expect(200, done)
   })
 
   it('should fire only once', function (done) {
@@ -58,12 +58,12 @@ describe('onHeaders(res, listener)', function () {
     }
 
     request(server)
-    .get('/')
-    .expect(200, function (err) {
-      if (err) return done(err)
-      assert.equal(count, 1)
-      done()
-    })
+      .get('/')
+      .expect(200, function (err) {
+        if (err) return done(err)
+        assert.equal(count, 1)
+        done()
+      })
   })
 
   it('should fire in reverse order', function (done) {
@@ -77,9 +77,9 @@ describe('onHeaders(res, listener)', function () {
     }
 
     request(server)
-    .get('/')
-    .expect('X-Outgoing-Echo', 'test,3,2,1')
-    .expect(200, done)
+      .get('/')
+      .expect('X-Outgoing-Echo', 'test,3,2,1')
+      .expect(200, done)
   })
 
   describe('arguments', function () {
@@ -94,16 +94,16 @@ describe('onHeaders(res, listener)', function () {
         var server = createServer()
 
         request(server)
-        .get('/')
-        .expect(500, /listener.*function/, done)
+          .get('/')
+          .expect(500, /listener.*function/, done)
       })
 
       it('should only accept function', function (done) {
         var server = createServer(42)
 
         request(server)
-        .get('/')
-        .expect(500, /listener.*function/, done)
+          .get('/')
+          .expect(500, /listener.*function/, done)
       })
     })
   })
@@ -113,9 +113,9 @@ describe('onHeaders(res, listener)', function () {
       var server = createServer(echoListener)
 
       request(server)
-      .get('/')
-      .expect('X-Outgoing-Echo', 'test')
-      .expect(200, done)
+        .get('/')
+        .expect('X-Outgoing-Echo', 'test')
+        .expect(200, done)
     })
   })
 
@@ -132,9 +132,9 @@ describe('onHeaders(res, listener)', function () {
       }
 
       request(server)
-      .get('/')
-      .expect('X-Status', '201')
-      .expect(201, done)
+        .get('/')
+        .expect('X-Status', '201')
+        .expect(201, done)
     })
 
     it('should allow manipulation of status in listener', function (done) {
@@ -150,9 +150,9 @@ describe('onHeaders(res, listener)', function () {
       }
 
       request(server)
-      .get('/')
-      .expect('X-Status', '201')
-      .expect(202, done)
+        .get('/')
+        .expect('X-Status', '201')
+        .expect(202, done)
     })
 
     it('should pass-through core error', function (done) {
@@ -163,8 +163,8 @@ describe('onHeaders(res, listener)', function () {
       }
 
       request(server)
-      .get('/')
-      .expect(500, done)
+        .get('/')
+        .expect(500, done)
     })
   })
 
@@ -178,9 +178,9 @@ describe('onHeaders(res, listener)', function () {
       }
 
       request(server)
-      .get('/')
-      .expect('X-Outgoing-Echo', 'test')
-      .expect(200, done)
+        .get('/')
+        .expect('X-Outgoing-Echo', 'test')
+        .expect(200, done)
     })
   })
 
@@ -193,9 +193,9 @@ describe('onHeaders(res, listener)', function () {
       }
 
       request(server)
-      .get('/')
-      .expect('X-Outgoing-Echo', 'test')
-      .expect(200, done)
+        .get('/')
+        .expect('X-Outgoing-Echo', 'test')
+        .expect(200, done)
     })
   })
 
@@ -213,10 +213,10 @@ describe('onHeaders(res, listener)', function () {
       }
 
       request(server)
-      .get('/')
-      .expect('X-Status', '201')
-      .expect('X-Outgoing-Echo', 'test')
-      .expect(201, done)
+        .get('/')
+        .expect('X-Status', '201')
+        .expect('X-Outgoing-Echo', 'test')
+        .expect(201, done)
     })
 
     it('should handle falsy keys', function (done) {
@@ -232,10 +232,10 @@ describe('onHeaders(res, listener)', function () {
       }
 
       request(server)
-      .get('/')
-      .expect('X-Status', '201')
-      .expect('X-Outgoing-Echo', 'test')
-      .expect(201, done)
+        .get('/')
+        .expect('X-Status', '201')
+        .expect('X-Outgoing-Echo', 'test')
+        .expect(201, done)
     })
   })
 
@@ -253,10 +253,10 @@ describe('onHeaders(res, listener)', function () {
       }
 
       request(server)
-      .get('/')
-      .expect('X-Status', '201')
-      .expect('X-Outgoing-Echo', 'test')
-      .expect(201, done)
+        .get('/')
+        .expect('X-Status', '201')
+        .expect('X-Outgoing-Echo', 'test')
+        .expect(201, done)
     })
   })
 })
