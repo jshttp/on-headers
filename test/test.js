@@ -61,7 +61,7 @@ describe('onHeaders(res, listener)', function () {
       .get('/')
       .expect(200, function (err) {
         if (err) return done(err)
-        assert.equal(count, 1)
+        assert.strictEqual(count, 1)
         done()
       })
   })
@@ -189,7 +189,7 @@ describe('onHeaders(res, listener)', function () {
       var server = createServer(echoListener, handler)
 
       function handler (req, res) {
-        res.writeHead(200, 'OK', {'X-Outgoing': 'test'})
+        res.writeHead(200, 'OK', { 'X-Outgoing': 'test' })
       }
 
       request(server)
@@ -204,7 +204,7 @@ describe('onHeaders(res, listener)', function () {
       var server = createServer(listener, handler)
 
       function handler (req, res) {
-        res.writeHead(201, {'X-Outgoing': 'test'})
+        res.writeHead(201, { 'X-Outgoing': 'test' })
       }
 
       function listener (req, res) {
@@ -223,7 +223,7 @@ describe('onHeaders(res, listener)', function () {
       var server = createServer(listener, handler)
 
       function handler (req, res) {
-        res.writeHead(201, {'X-Outgoing': 'test', '': 'test'})
+        res.writeHead(201, { 'X-Outgoing': 'test', '': 'test' })
       }
 
       function listener (req, res) {
