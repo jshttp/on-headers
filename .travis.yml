@@ -14,6 +14,9 @@ node_js:
   - "9.11"
   - "10.12"
 sudo: false
+cache:
+  directories:
+    - node_modules
 before_install:
   # Skip updating shrinkwrap / lock
   - "npm config set shrinkwrap false"
@@ -21,6 +24,10 @@ before_install:
   # Setup Node.js version-specific dependencies
   - "test $TRAVIS_NODE_VERSION != '0.8' || npm rm --save-dev istanbul"
   - "test $(echo $TRAVIS_NODE_VERSION | cut -d. -f1) -ge 6 || npm rm --save-dev $(grep -E '\"eslint\\S*\"' package.json | cut -d'\"' -f2)"
+
+  # Update Node.js modules
+  - "test ! -d node_modules || npm prune"
+  - "test ! -d node_modules || npm rebuild"
 script:
   # Run test script, depending on istanbul install
   - "test ! -z $(npm -ps ls istanbul) || npm test"
