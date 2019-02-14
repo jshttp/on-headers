@@ -262,12 +262,12 @@ describe('onHeaders(res, listener)', function () {
 })
 
 function createServer (listener, handler) {
-  handler = handler || echoHandler
+  var fn = handler || echoHandler
 
   return http.createServer(function (req, res) {
     try {
       onHeaders(res, listener)
-      handler(req, res)
+      fn(req, res)
       res.statusCode = 200
     } catch (err) {
       res.statusCode = 500
