@@ -156,7 +156,7 @@ describe('onHeaders(res, listener)', function () {
     })
 
     it('should pass-through core error', function (done) {
-      var server = createServer(echoListener, handler)
+      var server = createServer(appendHeader(1), handler)
 
       function handler (req, res) {
         res.writeHead() // error
