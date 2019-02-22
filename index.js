@@ -41,7 +41,7 @@ function createWriteHead (prevWriteHead, listener) {
       }
     }
 
-    prevWriteHead.apply(this, args)
+    return prevWriteHead.apply(this, args)
   }
 }
 

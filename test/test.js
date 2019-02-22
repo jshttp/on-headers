@@ -166,6 +166,25 @@ describe('onHeaders(res, listener)', function () {
         .get('/')
         .expect(500, done)
     })
+
+    it('should retain return value', function (done) {
+      var server = http.createServer(function (req, res) {
+        if (req.url === '/attach') {
+          onHeaders(res, appendHeader(1))
+        }
+
+        res.end(typeof res.writeHead(200))
+      })
+
+      request(server)
+        .get('/')
+        .expect(200, function (err, res) {
+          if (err) return done(err)
+          request(server)
+            .get('/attach')
+            .expect(200, res.text, done)
+        })
+    })
   })
 
   describe('writeHead(status, reason)', function () {
