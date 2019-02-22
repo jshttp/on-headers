@@ -1,5 +1,5 @@
-unreleased
-==========
+1.0.2 / 2019-02-21
+==================
 
   * Fix `res.writeHead` patch missing return value
 
