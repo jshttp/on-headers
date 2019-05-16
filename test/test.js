@@ -34,7 +34,7 @@ describe('onHeaders(res, listener)', function () {
     function handler (req, res) {}
 
     function listener (req, res) {
-      this.setHeader('X-Headers', Object.keys(this._headers || {}).join(','))
+      this.setHeader('X-Headers', getAllHeaderNames(this).join(','))
     }
 
     request(server)
@@ -309,4 +309,10 @@ function echoHandler (req, res) {
 
 function echoListener () {
   this.setHeader('X-Outgoing-Echo', this.getHeader('X-Outgoing'))
+}
+
+function getAllHeaderNames (res) {
+  return typeof res.getHeaderNames !== 'function'
+    ? Object.keys(this._headers || {})
+    : res.getHeaderNames()
 }
