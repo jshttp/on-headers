@@ -1,3 +1,6 @@
+arch:
+    - amd64
+    - ppc64le
 language: node_js
 node_js:
   - "0.8"
@@ -82,6 +85,7 @@ before_install:
       npm prune
       npm rebuild
     fi
+    
 before_scrpt:
   - |
     # Contents of node_modules
@@ -103,3 +107,19 @@ after_script:
       npm install --save-dev coveralls@2
       coveralls < ./coverage/lcov.info
     fi
+  #Excluding below versions since they are not supported by ppc64le    
+jobs: 
+  exclude:
+    - node_js: "0.8"
+      arch: ppc64le
+    - node_js: "0.10"
+      arch: ppc64le  
+    - node_js: "0.12"
+      arch: ppc64le
+    - node_js: "1.8"
+      arch: ppc64le 
+    - node_js: "2.5"
+      arch: ppc64le
+    - node_js: "3.3"
+      arch: ppc64le   
+    
