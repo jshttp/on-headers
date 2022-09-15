@@ -46,6 +46,17 @@ function createWriteHead (prevWriteHead, listener) {
 }
 
 /**
+ * Emit 'headers' event on response object.
+ */
+
+function emitHeadersEvent() {
+  if (!this.headersEventEmitted) {
+    this.headersEventEmitted = true
+    this.emit('headers')
+  }
+}
+
+/**
  * Execute a listener when a response is about to write headers.
  *
  * @param {object} res
@@ -58,6 +69,9 @@ function onHeaders (res, listener) {
     throw new TypeError('argument res is required')
   }
 
+  if (typeof listener === 'undefined') {
+    listener = emitHeadersEvent
+  }
   if (typeof listener !== 'function') {
     throw new TypeError('argument listener must be a function')
   }

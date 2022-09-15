@@ -4,82 +4,176 @@ var http = require('http')
 var onHeaders = require('..')
 var request = require('supertest')
 
-describe('onHeaders(res, listener)', function () {
-  it('should fire after setHeader', function (done) {
-    var server = createServer(echoListener)
+describe('onHeaders', function () {
+  describe('(res, listener)', function () {
+    it('should fire after setHeader', function (done) {
+      var server = createServer(echoListener)
 
-    request(server)
-      .get('/')
-      .expect('X-Outgoing-Echo', 'test')
-      .expect(200, done)
+      request(server)
+        .get('/')
+        .expect('X-Outgoing-Echo', 'test')
+        .expect(200, done)
+    })
+
+    it('should fire before write', function (done) {
+      var server = createServer(echoListener, handler)
+
+      function handler (req, res) {
+        res.setHeader('X-Outgoing', 'test')
+        res.write('1')
+      }
+
+      request(server)
+        .get('/')
+        .expect('X-Outgoing-Echo', 'test')
+        .expect(200, '1', done)
+    })
+
+    it('should fire with no headers', function (done) {
+      var server = createServer(listener, handler)
+
+      function handler (req, res) {}
+
+      function listener (req, res) {
+        this.setHeader('X-Headers', getAllHeaderNames(this).join(','))
+      }
+
+      request(server)
+        .get('/')
+        .expect('X-Headers', '')
+        .expect(200, done)
+    })
+
+    it('should fire only once', function (done) {
+      var count = 0
+      var server = createServer(listener, handler)
+
+      function handler (req, res) {
+        res.writeHead(200)
+
+        try { res.writeHead(200) } catch (e) {}
+      }
+
+      function listener (req, res) {
+        count++
+      }
+
+      request(server)
+        .get('/')
+        .expect(200, function (err) {
+          if (err) return done(err)
+          assert.strictEqual(count, 1)
+          done()
+        })
+    })
+
+    it('should fire in reverse order', function (done) {
+      var server = createServer(echoListener, handler)
+
+      function handler (req, res) {
+        onHeaders(res, appendHeader(1))
+        onHeaders(res, appendHeader(2))
+        onHeaders(res, appendHeader(3))
+        res.setHeader('X-Outgoing', 'test')
+      }
+
+      request(server)
+        .get('/')
+        .expect('X-Outgoing-Echo', 'test,3,2,1')
+        .expect(200, done)
+    })
   })
 
-  it('should fire before write', function (done) {
-    var server = createServer(echoListener, handler)
+  describe('(res)', function () {
+    it('should emit "headers" after setHeader', function (done) {
+      var server = createServer(undefined, echoHandlerWithListener)
 
-    function handler (req, res) {
-      res.setHeader('X-Outgoing', 'test')
-      res.write('1')
-    }
+      request(server)
+        .get('/')
+        .expect('X-Outgoing-Echo', 'test')
+        .expect(200, done)
+    })
 
-    request(server)
-      .get('/')
-      .expect('X-Outgoing-Echo', 'test')
-      .expect(200, '1', done)
-  })
+    it('should emit "headers" before write', function (done) {
+      var server = createServer(undefined, handler)
 
-  it('should fire with no headers', function (done) {
-    var server = createServer(listener, handler)
+      function handler (req, res) {
+        res.on('headers', echoListener)
+        res.setHeader('X-Outgoing', 'test')
+        res.write('1')
+      }
 
-    function handler (req, res) {}
+      request(server)
+        .get('/')
+        .expect('X-Outgoing-Echo', 'test')
+        .expect(200, '1', done)
+    })
 
-    function listener (req, res) {
-      this.setHeader('X-Headers', getAllHeaderNames(this).join(','))
-    }
+    it('should emit "headers" with no headers', function (done) {
+      var server = createServer(undefined, handler)
 
-    request(server)
-      .get('/')
-      .expect('X-Headers', '')
-      .expect(200, done)
-  })
+      function handler (req, res) {
+        res.on('headers', listener)
+      }
 
-  it('should fire only once', function (done) {
-    var count = 0
-    var server = createServer(listener, handler)
+      function listener (req, res) {
+        this.setHeader('X-Headers', getAllHeaderNames(this).join(','))
+      }
 
-    function handler (req, res) {
-      res.writeHead(200)
+      request(server)
+        .get('/')
+        .expect('X-Headers', '')
+        .expect(200, done)
+    })
 
-      try { res.writeHead(200) } catch (e) {}
-    }
+    it('should emit "headers" only once', function (done) {
+      var count = 0
+      var server = createServer(undefined, handler)
 
-    function listener (req, res) {
-      count++
-    }
+      function handler (req, res) {
+        res.on('headers', listener)
+        res.writeHead(200)
 
-    request(server)
-      .get('/')
-      .expect(200, function (err) {
-        if (err) return done(err)
-        assert.strictEqual(count, 1)
-        done()
-      })
-  })
+        try { res.writeHead(200) } catch (e) {}
+      }
 
-  it('should fire in reverse order', function (done) {
-    var server = createServer(echoListener, handler)
+      function listener (req, res) {
+        count++
+      }
 
-    function handler (req, res) {
-      onHeaders(res, appendHeader(1))
-      onHeaders(res, appendHeader(2))
-      onHeaders(res, appendHeader(3))
-      res.setHeader('X-Outgoing', 'test')
-    }
+      request(server)
+        .get('/')
+        .expect(200, function (err) {
+          if (err) return done(err)
+          assert.strictEqual(count, 1)
+          done()
+        })
+    })
 
-    request(server)
-      .get('/')
-      .expect('X-Outgoing-Echo', 'test,3,2,1')
-      .expect(200, done)
+    it('should emit "headers" only once even if added multiple times', function (done) {
+      var count = 0
+      var server = createServer(undefined, handler)
+
+      function handler (req, res) {
+        onHeaders(res)
+        res.on('headers', listener)
+        res.writeHead(200)
+
+        try { res.writeHead(200) } catch (e) {}
+      }
+
+      function listener (req, res) {
+        count++
+      }
+
+      request(server)
+        .get('/')
+        .expect(200, function (err) {
+          if (err) return done(err)
+          assert.strictEqual(count, 1)
+          done()
+        })
+    })
   })
 
   describe('arguments', function () {
@@ -90,14 +184,6 @@ describe('onHeaders(res, listener)', function () {
     })
 
     describe('listener', function () {
-      it('should be required', function (done) {
-        var server = createServer()
-
-        request(server)
-          .get('/')
-          .expect(500, /listener.*function/, done)
-      })
-
       it('should only accept function', function (done) {
         var server = createServer(42)
 
@@ -301,6 +387,11 @@ function appendHeader (num) {
   return function onHeaders () {
     this.setHeader('X-Outgoing', this.getHeader('X-Outgoing') + ',' + num)
   }
+}
+
+function echoHandlerWithListener (req, res) {
+  res.on('headers', echoListener)
+  res.setHeader('X-Outgoing', 'test')
 }
 
 function echoHandler (req, res) {
