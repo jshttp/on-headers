@@ -70,12 +70,12 @@ $ npm test
 
 [MIT](LICENSE)
 
-[ci-image]: https://badgen.net/github/checks/jshttp/methods/master?label=ci
-[ci-url]: https://github.com/jshttp/methods/actions/workflows/ci.yml
-[coveralls-image]: https://badgen.net/coveralls/c/github/jshttp/methods/master
-[coveralls-url]: https://coveralls.io/r/jshttp/methods?branch=master
-[node-image]: https://badgen.net/npm/node/methods
+[ci-image]: https://badgen.net/github/checks/jshttp/on-headers/master?label=ci
+[ci-url]: https://github.com/jshttp/on-headers/actions/workflows/ci.yml
+[coveralls-image]: https://badgen.net/coveralls/c/github/jshttp/on-headers/master
+[coveralls-url]: https://coveralls.io/r/jshttp/on-headers?branch=master
+[node-image]: https://badgen.net/npm/node/on-headers
 [node-url]: https://nodejs.org/en/download
-[npm-downloads-image]: https://badgen.net/npm/dm/methods
-[npm-url]: https://npmjs.org/package/methods
-[npm-version-image]: https://badgen.net/npm/v/methods
+[npm-downloads-image]: https://badgen.net/npm/dm/on-headers
+[npm-url]: https://npmjs.org/package/on-headers
+[npm-version-image]: https://badgen.net/npm/v/on-headers
