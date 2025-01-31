@@ -13,8 +13,6 @@ try {
 var createHTTPServer = server.createHTTPServer
 var createHTTP2Server = server.createHTTP2Server
 
-// TODO: status message is not supported
-
 var topDescribe = function (type, createServer) {
   var wrapper = function wrapper (req) {
     if (type === 'http2') {
@@ -200,7 +198,6 @@ var topDescribe = function (type, createServer) {
 
       wrapper(request(server).get('/'))
         .expect(200, function (err, res) {
-          // return done(err)
           if (err) return done(err)
 
           wrapper(request(server)
