@@ -1,15 +1,39 @@
 
 var assert = require('assert')
 var http = require('http')
+var http2
 var onHeaders = require('..')
 var request = require('supertest')
+var server = require('./support/servers')
 
-describe('onHeaders(res, listener)', function () {
+try {
+  http2 = require('http2')
+} catch (e) {}
+
+var createHTTPServer = server.createHTTPServer
+var createHTTP2Server = server.createHTTP2Server
+
+// TODO: status message is not supported
+
+var topDescribe = function (type, createServer) {
+  var wrapper = function wrapper (req) {
+    if (type === 'http2') {
+      return req.http2()
+    }
+
+    return req
+  }
+
+  describe('onHeaders(res, listener)', function () {
+    it('should fire after setHeader', function (done) {
+      wrapper(request(createServer(echoListener)).get('/'))
+        .expect('X-Outgoing-Echo', 'test')
+        .expect(200, done)
+    })
+  })
+
   it('should fire after setHeader', function (done) {
-    var server = createServer(echoListener)
-
-    request(server)
-      .get('/')
+    wrapper(request(createServer(echoListener)).get('/'))
       .expect('X-Outgoing-Echo', 'test')
       .expect(200, done)
   })
@@ -22,8 +46,7 @@ describe('onHeaders(res, listener)', function () {
       res.write('1')
     }
 
-    request(server)
-      .get('/')
+    wrapper(request(server).get('/'))
       .expect('X-Outgoing-Echo', 'test')
       .expect(200, '1', done)
   })
@@ -37,8 +60,7 @@ describe('onHeaders(res, listener)', function () {
       this.setHeader('X-Headers', getAllHeaderNames(this).join(','))
     }
 
-    request(server)
-      .get('/')
+    wrapper(request(server).get('/'))
       .expect('X-Headers', '')
       .expect(200, done)
   })
@@ -57,8 +79,7 @@ describe('onHeaders(res, listener)', function () {
       count++
     }
 
-    request(server)
-      .get('/')
+    wrapper(request(server).get('/'))
       .expect(200, function (err) {
         if (err) return done(err)
         assert.strictEqual(count, 1)
@@ -76,8 +97,7 @@ describe('onHeaders(res, listener)', function () {
       res.setHeader('X-Outgoing', 'test')
     }
 
-    request(server)
-      .get('/')
+    wrapper(request(server).get('/'))
       .expect('X-Outgoing-Echo', 'test,3,2,1')
       .expect(200, done)
   })
@@ -93,16 +113,15 @@ describe('onHeaders(res, listener)', function () {
       it('should be required', function (done) {
         var server = createServer()
 
-        request(server)
-          .get('/')
+        wrapper(request(server)
+          .get('/'))
           .expect(500, /listener.*function/, done)
       })
 
       it('should only accept function', function (done) {
         var server = createServer(42)
 
-        request(server)
-          .get('/')
+        wrapper(request(server).get('/'))
           .expect(500, /listener.*function/, done)
       })
     })
@@ -112,8 +131,7 @@ describe('onHeaders(res, listener)', function () {
     it('should be available in listener', function (done) {
       var server = createServer(echoListener)
 
-      request(server)
-        .get('/')
+      wrapper(request(server).get('/'))
         .expect('X-Outgoing-Echo', 'test')
         .expect(200, done)
     })
@@ -131,8 +149,7 @@ describe('onHeaders(res, listener)', function () {
         this.setHeader('X-Status', this.statusCode)
       }
 
-      request(server)
-        .get('/')
+      wrapper(request(server).get('/'))
         .expect('X-Status', '201')
         .expect(201, done)
     })
@@ -149,8 +166,7 @@ describe('onHeaders(res, listener)', function () {
         this.statusCode = 202
       }
 
-      request(server)
-        .get('/')
+      wrapper(request(server).get('/'))
         .expect('X-Status', '201')
         .expect(202, done)
     })
@@ -162,26 +178,33 @@ describe('onHeaders(res, listener)', function () {
         res.writeHead() // error
       }
 
-      request(server)
-        .get('/')
+      wrapper(request(server).get('/'))
         .expect(500, done)
     })
 
     it('should retain return value', function (done) {
-      var server = http.createServer(function (req, res) {
+      function callbackServer (req, res) {
         if (req.url === '/attach') {
           onHeaders(res, appendHeader(1))
         }
 
         res.end(typeof res.writeHead(200))
-      })
+      }
 
-      request(server)
-        .get('/')
+      var server
+      if (type === 'http') {
+        server = http.createServer(callbackServer)
+      } else {
+        server = http2.createServer(callbackServer)
+      }
+
+      wrapper(request(server).get('/'))
         .expect(200, function (err, res) {
+          // return done(err)
           if (err) return done(err)
-          request(server)
-            .get('/attach')
+
+          wrapper(request(server)
+            .get('/attach'))
             .expect(200, res.text, done)
         })
     })
@@ -196,8 +219,7 @@ describe('onHeaders(res, listener)', function () {
         res.writeHead(200, 'OK')
       }
 
-      request(server)
-        .get('/')
+      wrapper(request(server).get('/'))
         .expect('X-Outgoing-Echo', 'test')
         .expect(200, done)
     })
@@ -211,8 +233,7 @@ describe('onHeaders(res, listener)', function () {
         res.writeHead(200, 'OK', { 'X-Outgoing': 'test' })
       }
 
-      request(server)
-        .get('/')
+      wrapper(request(server).get('/'))
         .expect('X-Outgoing-Echo', 'test')
         .expect(200, done)
     })
@@ -231,8 +252,7 @@ describe('onHeaders(res, listener)', function () {
         this.setHeader('X-Outgoing-Echo', this.getHeader('X-Outgoing'))
       }
 
-      request(server)
-        .get('/')
+      wrapper(request(server).get('/'))
         .expect('X-Status', '201')
         .expect('X-Outgoing-Echo', 'test')
         .expect(201, done)
@@ -250,8 +270,7 @@ describe('onHeaders(res, listener)', function () {
         this.setHeader('X-Outgoing-Echo', this.getHeader('X-Outgoing'))
       }
 
-      request(server)
-        .get('/')
+      wrapper(request(server).get('/'))
         .expect('X-Status', '201')
         .expect('X-Outgoing-Echo', 'test')
         .expect(201, done)
@@ -271,29 +290,11 @@ describe('onHeaders(res, listener)', function () {
         this.setHeader('X-Outgoing-Echo', this.getHeader('X-Outgoing'))
       }
 
-      request(server)
-        .get('/')
+      wrapper(request(server).get('/'))
         .expect('X-Status', '201')
         .expect('X-Outgoing-Echo', 'test')
         .expect(201, done)
     })
-  })
-})
-
-function createServer (listener, handler) {
-  var fn = handler || echoHandler
-
-  return http.createServer(function (req, res) {
-    try {
-      onHeaders(res, listener)
-      fn(req, res)
-      res.statusCode = 200
-    } catch (err) {
-      res.statusCode = 500
-      res.write(err.message)
-    } finally {
-      res.end()
-    }
   })
 }
 
@@ -301,10 +302,6 @@ function appendHeader (num) {
   return function onHeaders () {
     this.setHeader('X-Outgoing', this.getHeader('X-Outgoing') + ',' + num)
   }
-}
-
-function echoHandler (req, res) {
-  res.setHeader('X-Outgoing', 'test')
 }
 
 function echoListener () {
@@ -315,4 +312,21 @@ function getAllHeaderNames (res) {
   return typeof res.getHeaderNames !== 'function'
     ? Object.keys(this._headers || {})
     : res.getHeaderNames()
+}
+
+var servers = [
+  ['http', createHTTPServer]
+]
+
+var nodeVersion = process.versions.node.split('.').map(Number)
+
+// `superagent` only supports `http2` since Node.js@10
+if (http2 && nodeVersion[0] >= 10) {
+  servers.push(['http2', createHTTP2Server])
+}
+
+for (var i = 0; i < servers.length; i++) {
+  var tests = topDescribe.bind(undefined, servers[i][0], servers[i][1])
+
+  describe(servers[i][0], tests)
 }
