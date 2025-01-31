@@ -14,24 +14,24 @@ var createHTTPServer = server.createHTTPServer
 var createHTTP2Server = server.createHTTP2Server
 
 var topDescribe = function (type, createServer) {
-  var wrapper = function wrapper (req) {
-    if (type === 'http2') {
-      return req.http2()
-    }
+  var options
 
-    return req
+  if (type === 'http2') {
+    options = { http2: true }
   }
 
   describe('onHeaders(res, listener)', function () {
     it('should fire after setHeader', function (done) {
-      wrapper(request(createServer(echoListener)).get('/'))
+      request(createServer(echoListener), options)
+        .get('/')
         .expect('X-Outgoing-Echo', 'test')
         .expect(200, done)
     })
   })
 
   it('should fire after setHeader', function (done) {
-    wrapper(request(createServer(echoListener)).get('/'))
+    request(createServer(echoListener), options)
+      .get('/')
       .expect('X-Outgoing-Echo', 'test')
       .expect(200, done)
   })
@@ -44,7 +44,8 @@ var topDescribe = function (type, createServer) {
       res.write('1')
     }
 
-    wrapper(request(server).get('/'))
+    request(server, options)
+      .get('/')
       .expect('X-Outgoing-Echo', 'test')
       .expect(200, '1', done)
   })
@@ -58,7 +59,8 @@ var topDescribe = function (type, createServer) {
       this.setHeader('X-Headers', getAllHeaderNames(this).join(','))
     }
 
-    wrapper(request(server).get('/'))
+    request(server, options)
+      .get('/')
       .expect('X-Headers', '')
       .expect(200, done)
   })
@@ -77,7 +79,8 @@ var topDescribe = function (type, createServer) {
       count++
     }
 
-    wrapper(request(server).get('/'))
+    request(server, options)
+      .get('/')
       .expect(200, function (err) {
         if (err) return done(err)
         assert.strictEqual(count, 1)
@@ -95,7 +98,8 @@ var topDescribe = function (type, createServer) {
       res.setHeader('X-Outgoing', 'test')
     }
 
-    wrapper(request(server).get('/'))
+    request(server, options)
+      .get('/')
       .expect('X-Outgoing-Echo', 'test,3,2,1')
       .expect(200, done)
   })
@@ -111,15 +115,16 @@ var topDescribe = function (type, createServer) {
       it('should be required', function (done) {
         var server = createServer()
 
-        wrapper(request(server)
-          .get('/'))
+        request(server, options)
+          .get('/')
           .expect(500, /listener.*function/, done)
       })
 
       it('should only accept function', function (done) {
         var server = createServer(42)
 
-        wrapper(request(server).get('/'))
+        request(server, options)
+          .get('/')
           .expect(500, /listener.*function/, done)
       })
     })
@@ -129,7 +134,8 @@ var topDescribe = function (type, createServer) {
     it('should be available in listener', function (done) {
       var server = createServer(echoListener)
 
-      wrapper(request(server).get('/'))
+      request(server, options)
+        .get('/')
         .expect('X-Outgoing-Echo', 'test')
         .expect(200, done)
     })
@@ -147,7 +153,8 @@ var topDescribe = function (type, createServer) {
         this.setHeader('X-Status', this.statusCode)
       }
 
-      wrapper(request(server).get('/'))
+      request(server, options)
+        .get('/')
         .expect('X-Status', '201')
         .expect(201, done)
     })
@@ -164,7 +171,8 @@ var topDescribe = function (type, createServer) {
         this.statusCode = 202
       }
 
-      wrapper(request(server).get('/'))
+      request(server, options)
+        .get('/')
         .expect('X-Status', '201')
         .expect(202, done)
     })
@@ -176,7 +184,8 @@ var topDescribe = function (type, createServer) {
         res.writeHead() // error
       }
 
-      wrapper(request(server).get('/'))
+      request(server, options)
+        .get('/')
         .expect(500, done)
     })
 
@@ -196,12 +205,13 @@ var topDescribe = function (type, createServer) {
         server = http2.createServer(callbackServer)
       }
 
-      wrapper(request(server).get('/'))
+      request(server, options)
+        .get('/')
         .expect(200, function (err, res) {
           if (err) return done(err)
 
-          wrapper(request(server)
-            .get('/attach'))
+          request(server, options)
+            .get('/attach')
             .expect(200, res.text, done)
         })
     })
@@ -216,7 +226,8 @@ var topDescribe = function (type, createServer) {
         res.writeHead(200, 'OK')
       }
 
-      wrapper(request(server).get('/'))
+      request(server, options)
+        .get('/')
         .expect('X-Outgoing-Echo', 'test')
         .expect(200, done)
     })
@@ -230,7 +241,8 @@ var topDescribe = function (type, createServer) {
         res.writeHead(200, 'OK', { 'X-Outgoing': 'test' })
       }
 
-      wrapper(request(server).get('/'))
+      request(server, options)
+        .get('/')
         .expect('X-Outgoing-Echo', 'test')
         .expect(200, done)
     })
@@ -249,7 +261,8 @@ var topDescribe = function (type, createServer) {
         this.setHeader('X-Outgoing-Echo', this.getHeader('X-Outgoing'))
       }
 
-      wrapper(request(server).get('/'))
+      request(server, options)
+        .get('/')
         .expect('X-Status', '201')
         .expect('X-Outgoing-Echo', 'test')
         .expect(201, done)
@@ -267,7 +280,8 @@ var topDescribe = function (type, createServer) {
         this.setHeader('X-Outgoing-Echo', this.getHeader('X-Outgoing'))
       }
 
-      wrapper(request(server).get('/'))
+      request(server, options)
+        .get('/')
         .expect('X-Status', '201')
         .expect('X-Outgoing-Echo', 'test')
         .expect(201, done)
@@ -287,7 +301,8 @@ var topDescribe = function (type, createServer) {
         this.setHeader('X-Outgoing-Echo', this.getHeader('X-Outgoing'))
       }
 
-      wrapper(request(server).get('/'))
+      request(server, options)
+        .get('/')
         .expect('X-Status', '201')
         .expect('X-Outgoing-Echo', 'test')
         .expect(201, done)
