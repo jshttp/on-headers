@@ -62,7 +62,13 @@ function onHeaders (res, listener) {
     throw new TypeError('argument listener must be a function')
   }
 
-  res.writeHead = createWriteHead(res.writeHead, listener)
+  if (res.writeHead) {
+    res.writeHead = createWriteHead(res.writeHead, listener)
+  }
+
+  if (res.respond) {
+    res.respond = createWriteHead(res.respond, listener)
+  }
 }
 
 /**

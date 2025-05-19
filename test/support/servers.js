@@ -28,22 +28,36 @@ function createHTTPServer (listener, handler) {
 }
 
 function createHTTP2Server (listener, handler) {
-  var fn = handler || echoHandler
+  var fn = handler || echoHandlerHTTP2
 
-  return http2.createServer(function (req, res) {
+  var server =  http2.createServer()
+
+  server.on('stream', function (stream, headers) {
     try {
-      onHeaders(res, listener)
-      fn(req, res)
-      res.statusCode = 200
+      onHeaders(stream, listener)
+      fn(headers, stream)
+      stream.respond({
+        ':status': 200
+      })
     } catch (err) {
-      res.statusCode = 500
-      res.write(err.message)
+      stream.respond({
+        ':status': 500
+      })
+      stream.write(err.message)
     } finally {
-      res.end()
+      stream.end()
     }
   })
+
+  return server
 }
 
 function echoHandler (req, res) {
   res.setHeader('X-Outgoing', 'test')
+}
+
+function echoHandlerHTTP2 (stream) {
+  stream.additionalHeaders({
+    'X-Outgoing': 'test'
+  })
 }
