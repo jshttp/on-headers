@@ -1,4 +1,3 @@
-
 var assert = require('assert')
 var http = require('http')
 var http2
@@ -11,7 +10,7 @@ try {
 } catch (e) {}
 
 var createHTTPServer = server.createHTTPServer
-var createHTTP2Server = server.createHTTP2Server
+var createHTTP2Server = server.createHTTP2ServerCompatibilityLayer
 
 var topDescribe = function (type, createServer) {
   var options

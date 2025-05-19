@@ -9,6 +9,7 @@ try {
 
 exports.createHTTPServer = createHTTPServer
 exports.createHTTP2Server = createHTTP2Server
+exports.createHTTP2ServerCompatibilityLayer = createHTTP2ServerCompatibilityLayer
 
 function createHTTPServer (listener, handler) {
   var fn = handler || echoHandler
@@ -27,15 +28,31 @@ function createHTTPServer (listener, handler) {
   })
 }
 
+function createHTTP2ServerCompatibilityLayer (listener, handler) {
+  var fn = handler || echoHandler
+
+  return http2.createServer(function (req, res) {
+    try {
+      onHeaders(res, listener)
+      fn(req, res)
+      res.statusCode = 200
+    } catch (err) {
+      res.statusCode = 500
+      res.write(err.message)
+    } finally {
+      res.end()
+    }
+  })
+}
+
 function createHTTP2Server (listener, handler) {
   var fn = handler || echoHandlerHTTP2
 
-  var server =  http2.createServer()
+  var server = http2.createServer()
 
   server.on('stream', function (stream, headers) {
     try {
       onHeaders(stream, listener)
-      fn(headers, stream)
       stream.respond({
         ':status': 200
       })
