@@ -47,10 +47,12 @@ function createWriteHead (prevWriteHead, listener) {
 
 function createRespond (prevRespond, listener) {
   var fired = false
-  const headers = []
+
+  var headers = { 0: {}, 1: {} }
 
   return function writeRespond () {
-    headers.push(...arguments)
+    headers['0'] = { ...headers['0'], ...arguments[0] }
+    headers['1'] = { ...headers['1'], ...arguments[1] }
 
     // fire listener
     if (!fired) {
@@ -59,7 +61,7 @@ function createRespond (prevRespond, listener) {
     }
 
     if (!this.headersSent) {
-      return prevRespond.apply(this, headers)
+      return prevRespond.apply(this, [headers['0'], headers['1']])
     }
   }
 }

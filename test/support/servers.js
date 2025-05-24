@@ -45,10 +45,10 @@ function createHTTP2ServerCompatibilityLayer (listener, handler) {
   })
 }
 
-function createHTTP2Server (listener, handler) {
+function createHTTP2Server (listener) {
   var server = http2.createServer()
 
-  server.on('stream', function (stream, headers) {
+  server.on('stream', function (stream) {
     try {
       onHeaders(stream, listener)
       stream.respond({
