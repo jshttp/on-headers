@@ -46,8 +46,6 @@ function createHTTP2ServerCompatibilityLayer (listener, handler) {
 }
 
 function createHTTP2Server (listener, handler) {
-  var fn = handler || echoHandlerHTTP2
-
   var server = http2.createServer()
 
   server.on('stream', function (stream, headers) {
@@ -71,10 +69,4 @@ function createHTTP2Server (listener, handler) {
 
 function echoHandler (req, res) {
   res.setHeader('X-Outgoing', 'test')
-}
-
-function echoHandlerHTTP2 (stream) {
-  stream.additionalHeaders({
-    'X-Outgoing': 'test'
-  })
 }
