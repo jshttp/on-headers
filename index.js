@@ -45,6 +45,27 @@ function createWriteHead (prevWriteHead, listener) {
   }
 }
 
+function createRespond (prevRespond, listener) {
+  var fired = false
+
+  var headers = { 0: {}, 1: {} }
+
+  return function writeRespond () {
+    headers['0'] = { ...headers['0'], ...arguments[0] }
+    headers['1'] = { ...headers['1'], ...arguments[1] }
+
+    // fire listener
+    if (!fired) {
+      fired = true
+      listener.call(this)
+    }
+
+    if (!this.headersSent) {
+      return prevRespond.apply(this, [headers['0'], headers['1']])
+    }
+  }
+}
+
 /**
  * Execute a listener when a response is about to write headers.
  *
@@ -62,7 +83,13 @@ function onHeaders (res, listener) {
     throw new TypeError('argument listener must be a function')
   }
 
-  res.writeHead = createWriteHead(res.writeHead, listener)
+  if (res.writeHead) {
+    res.writeHead = createWriteHead(res.writeHead, listener)
+  }
+
+  if (res.respond) {
+    res.respond = createRespond(res.respond, listener)
+  }
 }
 
 /**

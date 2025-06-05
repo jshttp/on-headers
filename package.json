@@ -8,6 +8,7 @@
     "event",
     "headers",
     "http",
+    "http2",
     "onheaders"
   ],
   "repository": "jshttp/on-headers",
@@ -21,7 +22,7 @@
     "eslint-plugin-standard": "4.0.1",
     "mocha": "10.2.0",
     "nyc": "15.1.0",
-    "supertest": "4.0.2"
+    "supertest": "6.3.4"
   },
   "files": [
     "LICENSE",
@@ -34,7 +35,7 @@
   },
   "scripts": {
     "lint": "eslint --plugin markdown --ext js,md .",
-    "test": "mocha --reporter spec --bail --check-leaks test/",
+    "test": "mocha --reporter spec --exit --check-leaks test/",
     "test-ci": "nyc --reporter=lcov --reporter=text npm test",
     "test-cov": "nyc --reporter=html --reporter=text npm test",
     "version": "node scripts/version-history.js && git add HISTORY.md"
