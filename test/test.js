@@ -278,6 +278,64 @@ describe('onHeaders(res, listener)', function () {
         .expect(201, done)
     })
   })
+
+  describe('writeHead(status, flat arr)', function () {
+    it('should be available in listener', function (done) {
+      var server = createServer(listener, handler)
+
+      function handler (req, res) {
+        res.writeHead(201, ['X-Outgoing', 'test'])
+      }
+
+      function listener (req, res) {
+        this.setHeader('X-Status', this.statusCode)
+        this.setHeader('X-Outgoing-Echo', this.getHeader('X-Outgoing'))
+      }
+
+      request(server)
+        .get('/')
+        .expect('X-Status', '201')
+        .expect('X-Outgoing-Echo', 'test')
+        .expect(201, done)
+    })
+  })
+
+  describe('writeHead(status, invalid flat arr)', function () {
+    it('should throw on malformed array', function (done) {
+      var server = createServer(listener, handler)
+
+      function handler (req, res) {
+        assert.throws(function () {
+          res.writeHead(201, ['foo', 'bar', 'baz'])
+        },
+        TypeError)
+      }
+
+      function listener (req, res) {
+      }
+
+      // gets a 200 here because we caught the error via assert.throws
+      request(server)
+        .get('/')
+        .expect(200, done)
+    })
+
+    it('should return 500 on malformed array', function (done) {
+      var server = createServer(listener, handler)
+
+      function handler (req, res) {
+        res.writeHead(201, ['foo', 'bar', 'baz'])
+        res.end('no soup for you!')
+      }
+
+      function listener (req, res) {
+      }
+
+      request(server)
+        .get('/')
+        .expect(500, done)
+    })
+  })
 })
 
 function createServer (listener, handler) {

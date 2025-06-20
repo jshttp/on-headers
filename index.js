@@ -74,8 +74,20 @@ function onHeaders (res, listener) {
  */
 
 function setHeadersFromArray (res, headers) {
-  for (var i = 0; i < headers.length; i++) {
-    res.setHeader(headers[i][0], headers[i][1])
+  if (headers.length && Array.isArray(headers[0])) {
+    // 2D
+    for (var i = 0; i < headers.length; i++) {
+      res.setHeader(headers[i][0], headers[i][1])
+    }
+  } else {
+    if (headers.length % 2 !== 0) {
+      throw new TypeError('headers array is malformed')
+    }
+
+    // 1D
+    for (var j = 0; j < headers.length; j += 2) {
+      res.setHeader(headers[j], headers[j + 1])
+    }
   }
 }
 
