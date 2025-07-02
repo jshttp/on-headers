@@ -34,9 +34,10 @@
   },
   "scripts": {
     "lint": "eslint --plugin markdown --ext js,md .",
-    "test": "mocha --reporter spec --bail --check-leaks test/",
+    "test": "mocha --reporter spec --bail --check-leaks test/test.js",
     "test-ci": "nyc --reporter=lcov --reporter=text npm test",
     "test-cov": "nyc --reporter=html --reporter=text npm test",
+    "upstream": "mocha --reporter spec --check-leaks test/upstream.js",
     "version": "node scripts/version-history.js && git add HISTORY.md"
   }
 }
