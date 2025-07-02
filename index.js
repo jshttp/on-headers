@@ -13,6 +13,11 @@
 
 module.exports = onHeaders
 
+var http = require('http')
+
+// older node versions don't have appendHeader
+var isAppendHeaderSupported = typeof http.ServerResponse.prototype.appendHeader === 'function'
+
 /**
  * Create a replacement writeHead method.
  *
@@ -80,13 +85,23 @@ function setHeadersFromArray (res, headers) {
       res.setHeader(headers[i][0], headers[i][1])
     }
   } else {
+    // 1D
     if (headers.length % 2 !== 0) {
       throw new TypeError('headers array is malformed')
     }
 
-    // 1D
-    for (var j = 0; j < headers.length; j += 2) {
-      res.setHeader(headers[j], headers[j + 1])
+    if (isAppendHeaderSupported) {
+      for (var j = 0; j < headers.length; j += 2) {
+        res.removeHeader(headers[j])
+      }
+
+      for (var k = 0; k < headers.length; k += 2) {
+        res.appendHeader(headers[k], headers[k + 1])
+      }
+    } else {
+      for (var l = 0; l < headers.length; l += 2) {
+        res.setHeader(headers[l], headers[l + 1])
+      }
     }
   }
 }

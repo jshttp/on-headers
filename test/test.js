@@ -4,6 +4,9 @@ var http = require('http')
 var onHeaders = require('..')
 var request = require('supertest')
 
+// older node versions don't have appendHeader
+var isAppendHeaderSupported = typeof http.ServerResponse.prototype.appendHeader === 'function'
+
 describe('onHeaders(res, listener)', function () {
   it('should fire after setHeader', function (done) {
     var server = createServer(echoListener)
@@ -334,6 +337,66 @@ describe('onHeaders(res, listener)', function () {
       request(server)
         .get('/')
         .expect(500, done)
+    })
+  })
+
+  describe('writeHead(status, duplicate headers)', function () {
+    it('should be respected', function (done) {
+      var server = createServer(listener, handler)
+
+      function handler (req, res) {
+        res.writeHead(201, ['express', 'is good', 'express', 'is great'])
+      }
+
+      function listener (req, res) {
+        // no need to duplicate existing listener tests further... right?
+      }
+
+      var response = request(server).get('/')
+
+      if (isAppendHeaderSupported) {
+        response
+          .expect('express', 'is good, is great')
+      } else {
+        response
+          .expect('express', 'is great')
+      }
+
+      response
+        .expect(201)
+        .end(function (err, res) {
+          if (err) throw err
+
+          var expressIsGood = false
+          var expressIsGreat = false
+
+          // very old node versions do not have the `rawHeaders` prop
+          var headers = res.res.rawHeaders || res.res.headers
+
+          if (headers.length) {
+            for (var i = 0; i < headers.length; i++) {
+              const header = headers[i]
+
+              if (header === 'express') {
+                if (headers[i + 1] === 'is good') {
+                  expressIsGood = true
+                } else if (headers[i + 1] === 'is great') {
+                  expressIsGreat = true
+                }
+              }
+            }
+          } else {
+            expressIsGreat = headers.express === 'is great'
+          }
+
+          if (isAppendHeaderSupported) {
+            assert.ok(expressIsGood)
+          }
+
+          assert.ok(expressIsGreat)
+
+          done()
+        })
     })
   })
 })
