@@ -186,12 +186,6 @@ jobs:
     - name: Install Node.js dependencies
       run: npm install
 
-    - name: Install browserify
-      run: |
-        if [[ "$(cut -d. -f1 <<< "${{ matrix.node-version }}")" -ge 1 ]]; then
-          npm install --save-dev browserify@16
-        fi
-
     - name: List environment
       id: list_env
       shell: bash
