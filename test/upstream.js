@@ -1,3 +1,6 @@
+// NOTE: this is a temporary solution to tell us if future changes to the monkey-patched methods
+// could impact this package. Recognizing this is not an ideal solution, we plan to address this when
+// we can drop the monkey-patching entirely.
 const crypto = require('crypto')
 const assert = require('assert')
 const http = require('http')
