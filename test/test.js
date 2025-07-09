@@ -280,6 +280,21 @@ describe('onHeaders(res, listener)', function () {
         .expect('X-Outgoing-Echo', 'test')
         .expect(201, done)
     })
+
+    it('should ignore empty header key', function (done) {
+      var server = createServer(listener, handler)
+
+      function handler (req, res) {
+        res.writeHead(201, [['', 'test']])
+      }
+
+      function listener (req, res) {
+      }
+
+      request(server)
+        .get('/')
+        .expect(201, done)
+    })
   })
 
   describe('writeHead(status, flat arr)', function () {
@@ -299,6 +314,21 @@ describe('onHeaders(res, listener)', function () {
         .get('/')
         .expect('X-Status', '201')
         .expect('X-Outgoing-Echo', 'test')
+        .expect(201, done)
+    })
+
+    it('should ignore empty header key', function (done) {
+      var server = createServer(listener, handler)
+
+      function handler (req, res) {
+        res.writeHead(201, ['', 'test'])
+      }
+
+      function listener (req, res) {
+      }
+
+      request(server)
+        .get('/')
         .expect(201, done)
     })
   })

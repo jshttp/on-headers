@@ -79,10 +79,15 @@ function onHeaders (res, listener) {
  */
 
 function setHeadersFromArray (res, headers) {
+  var key
+
   if (headers.length && Array.isArray(headers[0])) {
     // 2D
     for (var i = 0; i < headers.length; i++) {
-      res.setHeader(headers[i][0], headers[i][1])
+      key = headers[i][0]
+      if (key) {
+        res.setHeader(key, headers[i][1])
+      }
     }
   } else {
     // 1D
@@ -96,11 +101,17 @@ function setHeadersFromArray (res, headers) {
       }
 
       for (var k = 0; k < headers.length; k += 2) {
-        res.appendHeader(headers[k], headers[k + 1])
+        key = headers[k]
+        if (key) {
+          res.appendHeader(key, headers[k + 1])
+        }
       }
     } else {
       for (var l = 0; l < headers.length; l += 2) {
-        res.setHeader(headers[l], headers[l + 1])
+        key = headers[l]
+        if (key) {
+          res.setHeader(key, headers[l + 1])
+        }
       }
     }
   }
