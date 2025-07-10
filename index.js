@@ -17,6 +17,7 @@ var http = require('http')
 
 // older node versions don't have appendHeader
 var isAppendHeaderSupported = typeof http.ServerResponse.prototype.appendHeader === 'function'
+var set1dArray = isAppendHeaderSupported ? set1dArrayWithAppend : set1dArrayWithSet
 
 /**
  * Create a replacement writeHead method.
@@ -79,41 +80,16 @@ function onHeaders (res, listener) {
  */
 
 function setHeadersFromArray (res, headers) {
-  var key
-
   if (headers.length && Array.isArray(headers[0])) {
     // 2D
-    for (var i = 0; i < headers.length; i++) {
-      key = headers[i][0]
-      if (key) {
-        res.setHeader(key, headers[i][1])
-      }
-    }
+    set2dArray(res, headers)
   } else {
     // 1D
     if (headers.length % 2 !== 0) {
       throw new TypeError('headers array is malformed')
     }
 
-    if (isAppendHeaderSupported) {
-      for (var j = 0; j < headers.length; j += 2) {
-        res.removeHeader(headers[j])
-      }
-
-      for (var k = 0; k < headers.length; k += 2) {
-        key = headers[k]
-        if (key) {
-          res.appendHeader(key, headers[k + 1])
-        }
-      }
-    } else {
-      for (var l = 0; l < headers.length; l += 2) {
-        key = headers[l]
-        if (key) {
-          res.setHeader(key, headers[l + 1])
-        }
-      }
-    }
+    set1dArray(res, headers)
   }
 }
 
@@ -167,4 +143,38 @@ function setWriteHeadHeaders (statusCode) {
   }
 
   return args
+}
+
+function set2dArray (res, headers) {
+  var key
+  for (var i = 0; i < headers.length; i++) {
+    key = headers[i][0]
+    if (key) {
+      res.setHeader(key, headers[i][1])
+    }
+  }
+}
+
+function set1dArrayWithAppend (res, headers) {
+  for (var i = 0; i < headers.length; i += 2) {
+    res.removeHeader(headers[i])
+  }
+
+  var key
+  for (var j = 0; j < headers.length; j += 2) {
+    key = headers[j]
+    if (key) {
+      res.appendHeader(key, headers[j + 1])
+    }
+  }
+}
+
+function set1dArrayWithSet (res, headers) {
+  var key
+  for (var i = 0; i < headers.length; i += 2) {
+    key = headers[i]
+    if (key) {
+      res.setHeader(key, headers[i + 1])
+    }
+  }
 }
