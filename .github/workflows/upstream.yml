@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  issues: write  # to create issues if the upstream check fails
 
 jobs:
   test:
@@ -23,3 +24,19 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm install
       - run: npm run upstream
+      - name: Handle error
+        if: ${{ failure() }}
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const nodeVersion = process.version;
+            const issueTitle = `Upstream check failed`;
+            const issueBody = `Node ${nodeVersion} has made changes to the functions that depend on this module. Please review the new function signatures and make the corresponding updates to this module.`;
+
+            const issue = await github.rest.issues.create({
+              owner,
+              repo,
+              title: issueTitle,
+              body: issueBody,
+            });
