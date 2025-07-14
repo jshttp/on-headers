@@ -32,7 +32,7 @@ jobs:
             const { owner, repo } = context.repo;
             const nodeVersion = process.version;
             const issueTitle = `Upstream check failed`;
-            const issueBody = `Node ${nodeVersion} has made changes to the functions that depend on this module. Please review the new function signatures and make the corresponding updates to this module.`;
+            const issueBody = `Node ${nodeVersion} has made changes to the functions this module depends on. Please review the new function changes, determine if this module requires changes because of them, and update the function hashes. Add a comment below with your findings.`;
 
             const issue = await github.rest.issues.create({
               owner,
