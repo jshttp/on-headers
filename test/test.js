@@ -464,6 +464,6 @@ function echoListener () {
 
 function getAllHeaderNames (res) {
   return typeof res.getHeaderNames !== 'function'
-    ? Object.keys(this._headers || {})
+    ? Object.keys(res._headers || {})
     : res.getHeaderNames()
 }
