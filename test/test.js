@@ -221,6 +221,34 @@ describe('onHeaders(res, listener)', function () {
     })
   })
 
+  describe('writeHead(status, undefined, obj)', function () {
+    it('should set headers when statusText is undefined', function (done) {
+      var server = createServer(echoListener, handler)
+
+      function handler (req, res) {
+        res.writeHead(200, undefined, { 'X-Outgoing': 'test' })
+      }
+
+      request(server)
+        .get('/')
+        .expect('X-Outgoing-Echo', 'test')
+        .expect(200, done)
+    })
+
+    it('should set headers when statusText is null', function (done) {
+      var server = createServer(echoListener, handler)
+
+      function handler (req, res) {
+        res.writeHead(200, null, { 'X-Outgoing': 'test' })
+      }
+
+      request(server)
+        .get('/')
+        .expect('X-Outgoing-Echo', 'test')
+        .expect(200, done)
+    })
+  })
+
   describe('writeHead(status, obj)', function () {
     it('should be available in listener', function (done) {
       var server = createServer(listener, handler)

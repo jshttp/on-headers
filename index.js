@@ -120,7 +120,9 @@ function setWriteHeadHeaders (statusCode) {
   var length = arguments.length
   var headerIndex = length > 1 && typeof arguments[1] === 'string'
     ? 2
-    : 1
+    : length > 2
+      ? 2
+      : 1
 
   var headers = length >= headerIndex + 1
     ? arguments[headerIndex]
