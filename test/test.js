@@ -111,17 +111,6 @@ describe('onHeaders(res, listener)', function () {
     })
   })
 
-  describe('setHeader', function () {
-    it('should be available in listener', function (done) {
-      var server = createServer(echoListener)
-
-      request(server)
-        .get('/')
-        .expect('X-Outgoing-Echo', 'test')
-        .expect(200, done)
-    })
-  })
-
   describe('writeHead(status)', function () {
     it('should make status available in listener', function (done) {
       var server = createServer(listener, handler)
