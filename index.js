@@ -17,7 +17,16 @@ var http = require('http')
 
 // older node versions don't have appendHeader
 var isAppendHeaderSupported = typeof http.ServerResponse.prototype.appendHeader === 'function'
+
+// node v22 (https://github.com/nodejs/node/pull/50394) made writeHead preserve
+// duplicate headers passed as a raw array even when setHeader was called before;
+// earlier versions collapse them to the last value. since this monkey-patch
+// always applies headers via setHeader/appendHeader, only preserve duplicates on
+// versions where node itself does, so behavior stays consistent with the runtime
+var preservesDuplicateHeaders = isAppendHeaderSupported && parseInt(process.versions.node, 10) >= 22
+
 var set1dArray = isAppendHeaderSupported ? set1dArrayWithAppend : set1dArrayWithSet
+var set2dArray = preservesDuplicateHeaders ? set2dArrayWithAppend : set2dArrayWithSet
 
 /**
  * Create a replacement writeHead method.
@@ -145,7 +154,24 @@ function setWriteHeadHeaders (statusCode) {
   return args
 }
 
-function set2dArray (res, headers) {
+function set2dArrayWithAppend (res, headers) {
+  var key
+  for (var i = 0; i < headers.length; i++) {
+    key = headers[i][0]
+    if (key) {
+      res.removeHeader(key)
+    }
+  }
+
+  for (var j = 0; j < headers.length; j++) {
+    key = headers[j][0]
+    if (key) {
+      res.appendHeader(key, headers[j][1])
+    }
+  }
+}
+
+function set2dArrayWithSet (res, headers) {
   var key
   for (var i = 0; i < headers.length; i++) {
     key = headers[i][0]
