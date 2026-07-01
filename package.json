@@ -44,5 +44,9 @@
     "update-upstream-hashes": "node scripts/update-upstream-hashes.js",
     "upstream": "mocha --reporter spec --check-leaks test/upstream.js",
     "version": "node scripts/version-history.js && git add HISTORY.md"
+  },
+  "homepage": "https://github.com/jshttp/on-headers",
+  "bugs": {
+    "url": "https://github.com/jshttp/on-headers/issues"
   }
 }
